@@ -1,0 +1,5 @@
+error.log
+access.log
+README.md
+node_modules/
+shell/

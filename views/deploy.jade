@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  h1= title
+  p 欢迎使用 #{title}
+
+  form
+    label 输入分支
+    input(
+        type="text"
+        name="branch"
+    )

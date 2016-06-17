@@ -1,0 +1,98 @@
+#!/usr/bin/env node
+
+const exec = require('child_process').exec;
+const shellCreateRepository = './shell/create_repository.sh';
+const shellUpdateRepository = './shell/update_repository.sh';
+const shellRebuildRepository = './shell/rebuild_repository.sh';
+
+// 指定仓库、分支和部署环境，完成部署
+var repository = '';
+var branch = 'master';
+var deployment = 'alpha';
+var destDir = '../deployments/';
+
+function createRepository(repository, branch, deployment, destDir) {
+    var command = [shellCreateRepository, repository, branch, deployment, destDir].join(' ');
+    console.log('Execute: ', command);
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.log(`stderr: ${stderr}`);
+    });
+}
+
+function updateRepository(repository, branch, deployment, destDir) {
+    var command = [shellUpdateRepository, repository, branch, deployment, destDir].join(' ');
+    console.log('Execute: ', command);
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.log(`stderr: ${stderr}`);
+    });
+}
+
+/**
+ * 
+ */
+function rebuidRepository(repository, branch, deployment, destDir, ufaConfig) {
+    var command = [shellRebuildRepository, repository, branch, deployment, destDir, 
+                                ufaConfig.debug, ufaConfig.origin, ufaConfig.dest, ufaConfig.rule].join(' ');
+    console.log('Execute: ', command);
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.log(`stderr: ${stderr}`);
+    });
+
+}
+
+function store(params) {
+    // TODO::Store database.
+    console.log('# Store', params)
+}
+
+module.exports = {
+    create: createRepository,
+    update: updateRepository,
+    rebuild: rebuidRepository,
+    store: store,
+}
+
+if (process.argv.length > 2) {
+    // run command
+    store({
+        patform: process.argv[2],
+        deployment: process.argv[3],
+        author: ''
+    });
+}
+
+// var command = '';
+// const exec = require('child_process').exec;
+// exec('mkdir test && cd test && git clone git@git.corp.angejia.com:service/retrx-mgt.git', (error, stdout, stderr) => {
+//   if (error) {
+//     console.error(`exec error: ${error}`);
+//     return;
+//   }
+//   console.log(`stdout: ${stdout}`);
+//   console.log(`stderr: ${stderr}`);
+// });
+
+
+// const execFile = require('child_process').execFile;
+// const child = execFile('node', ['--version'], (error, stdout, stderr) => {
+//   if (error) {
+//     throw error;
+//   }
+//   console.log(stdout);
+// });
+

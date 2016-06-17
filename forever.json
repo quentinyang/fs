@@ -1,0 +1,9 @@
+{
+    "uid": "fs",
+    "append": true,
+    "watch": true,
+    "script": "bin/www",
+    "errFile": "error.log",
+    "outFile": "access.log",
+    "sourceDir": "./"
+}
