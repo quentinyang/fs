@@ -1,5 +1,11 @@
 # FS
 
+## Start
+
+```
+nodemon bin/www
+```
+
 ## Qiniu
 
 app-{{ item }}/public/ -r app-{{ item }}

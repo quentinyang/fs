@@ -11,16 +11,25 @@ var branch = 'master';
 var deployment = 'alpha';
 var destDir = '../deployments/';
 
-function createRepository(repository, branch, deployment, destDir) {
+var versionModel = require('../models/version');
+
+function createRepository(repository, branch, deployment, platform, destDir) {
     var command = [shellCreateRepository, repository, branch, deployment, destDir].join(' ');
     console.log('Execute: ', command);
     exec(command, (error, stdout, stderr) => {
         if (error) {
-            console.error(`exec error: ${error}`);
+            console.log(`${error} stderr: ${stderr}`);
             return;
         }
         console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
+
+        versionModel.create({
+            repository: repository,
+            branch: branch,
+            deployment: deployment,
+            platform, platform
+        });
+
     });
 }
 
@@ -29,28 +38,35 @@ function updateRepository(repository, branch, deployment, destDir) {
     console.log('Execute: ', command);
     exec(command, (error, stdout, stderr) => {
         if (error) {
-            console.error(`exec error: ${error}`);
+            console.log(`${error} stderr: ${stderr}`);
             return;
         }
         console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
     });
 }
 
 /**
  * 
  */
-function rebuidRepository(repository, branch, deployment, destDir, ufaConfig) {
+function rebuidRepository(repository, branch, deployment, platform, destDir, ufaConfig) {
     var command = [shellRebuildRepository, repository, branch, deployment, destDir, 
                                 ufaConfig.debug, ufaConfig.origin, ufaConfig.dest, ufaConfig.rule].join(' ');
     console.log('Execute: ', command);
     exec(command, (error, stdout, stderr) => {
         if (error) {
-            console.error(`exec error: ${error}`);
+            console.log(`${error} stderr: ${stderr}`);
             return;
         }
         console.log(`stdout: ${stdout}`);
-        console.log(`stderr: ${stderr}`);
+
+        versionModel.update({
+            repository: repository,
+            branch: branch, 
+            platform: platform,
+            deployment: deployment,
+            status: 1
+        });
+        
     });
 
 }
@@ -72,6 +88,7 @@ if (process.argv.length > 2) {
     store({
         patform: process.argv[2],
         deployment: process.argv[3],
+        platform: process.argv[4],
         author: ''
     });
 }

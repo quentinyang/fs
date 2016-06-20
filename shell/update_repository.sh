@@ -14,5 +14,9 @@ baseGitName=${gitName%.git}
 branchDirectory="$destDir/$branchName/$deployment/$baseGitName"
 
 cd $branchDirectory
+
+# To fix issue: "fatal: Unable to create 'PATH/fs/deployments/master/production/angejia/.git/index.lock': File exists."
+rm -rf .git/index.lock
+
 git checkout .
 git pull --rebase origin $branchName

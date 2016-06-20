@@ -5,6 +5,7 @@ var fs = require('fs');
 var pool = require('../mysql');
 
 var qiniuUpload = require('../utils/qiniu_upload2cdn');
+
 function deploy() {
     pool.query('SELECT * FROM fs_version', function(err, rows, fields) {
         console.log('MYSQL');
@@ -13,36 +14,26 @@ function deploy() {
     });
 }
 
+function index(req, res, next) {
+  res.render('deploy', { title: '前端服务化部署(Frontend Servation Deploy)' });
+}
+
 function create(req, res, next) {
     var params = req.body;
 
-    if (! params.repository || ! params.branch || ! params.deployment) {
+    if (! params.repository || ! params.branch || ! params.deployment || !params.platform) {
         res.status(400).send("Parameter Error: " + JSON.stringify(params));
         return;
     }
 
     console.log('Post Parameter: \n', params);
-
-    deployTool.create(params.repository, params.branch, params.deployment, destDir);
+    deployTool.create(params.repository, params.branch, params.deployment, params.platform, destDir);
 
     res.send(params);
 }
 
 function update(req, res, next) {
-
-    var params = req.body;
-
-    if (! params.repository || ! params.branch || ! params.deployment) {
-        res.status(400).send("Parameter Error: " + JSON.stringify(params));
-        return;
-    }
-
-    console.log('Post Parameter: \n', params);
-
-    deployTool.rebuild(params.repository, params.branch, params.deployment, destDir);
-
-    res.send(params);
-
+    res.send(200);
 }
 
 function rebuild(req, res, next) {
@@ -60,7 +51,7 @@ function rebuild(req, res, next) {
 
     console.log('Post Parameter: \n', params, ufaConfig);
 
-    deployTool.rebuild(params.repository, params.branch, params.deployment, destDir, ufaConfig);
+    deployTool.rebuild(params.repository, params.branch, params.deployment, params.platform, destDir, ufaConfig);
 
     res.send({params: params, ufa: ufaConfig});
 
@@ -105,6 +96,7 @@ function upload2cdn (req, res, next) {
 }
 
 module.exports = {
+    index: index,
     deploy: deploy,
     create: create,
     update: update,

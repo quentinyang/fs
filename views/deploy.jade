@@ -1,12 +1,83 @@
 extends layout
 
 block content
-  h1= title
-  p 欢迎使用 #{title}
+    h1= title
+    p 欢迎使用 #{title}
 
-  form
-    label 输入分支
-    input(
-        type="text"
-        name="branch"
-    )
+    h2 部署工具
+    div(class="deploy")
+        div(class="row")
+            label 选择仓库
+            select(name="repository" class="repository")
+                option(value="git@git.corp.angejia.com:service/angejia.git") 安个家(service/angejia)
+                option(value="git@git.corp.angejia.com:service/retrx-mgt.git") 交易(retrx-mg)
+
+            label 选择部署环境
+            select(name="deployment" class="deployment")
+                option(value="production") production
+                option(value="dev") dev
+                option(value="alpha") alpha
+                option(value="master") master
+                
+
+            label 选择部署平台
+            select(name="platform" class="platform")
+                option(value="app-site") PC(app-site)
+                option(value="app-crm") CRM(app-crm)
+                option(value="app-platform") BOSS(app-platform)
+                option(value="app-bureau") 生态圈(app-bureau)
+                option(value="retrx-mgt") 交易(retrx-mgt)
+
+            label 输入分支
+            input(
+                type="text"
+                name="branch"
+                class="branch"
+                value="master"
+            )
+
+        div(class="row")
+            input(
+                class="button-sm button-create"
+                type="button"
+                value="新建"
+                name=""
+            )
+
+            input(
+                class="button-sm button-rebuild"
+                type="button"
+                value="重新部署"
+                name=""
+            )
+        div(class="message")
+
+    
+    h2 上传工具
+    div(class="upload")
+        div(class="row")
+            label 选择仓库
+            select(name="repository")
+                option(value="angejia") angejia
+                option(value="retrx-mgt") 交易
+
+            label 选择部署环境
+            select(name="deployment")
+                option(value="dev") dev
+                option(value="alpha") alpha
+                option(value="master") master
+                option(value="production") production
+
+            label 输入分支
+            input(
+                type="text"
+                name="branch"
+            )
+
+        div(class="row")
+            input(
+                class="button-sm button-upload"
+                type="button"
+                value="上传"
+                name=""
+            )
