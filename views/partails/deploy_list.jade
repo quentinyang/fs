@@ -1,0 +1,23 @@
+table
+    tr
+        th 部署环境
+        th 平台
+        th 分支
+        th 创建
+        th 更新
+        th 状态
+        th 操作
+    each row in data
+        tr
+            td=row.deployment
+            td=row.platform
+            td=row.branch
+            td=((new Date(row.created)).toLocaleString('zh-cn', {hour12: false}))
+            td=((new Date(row.updated)).toLocaleString('zh-cn', {hour12: false}))
+            td(class="status")
+                if (row.status == 1)
+                    span(class="success") 成功
+                else
+                    span(class="fail") 失败
+            td 
+                input(type="button" class="rebuild" value="重新部署" data-repository=row.repository data-deployment=row.deployment data-platform=row.platform data-branch=row.branch) 

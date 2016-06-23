@@ -2,20 +2,12 @@ var deployTool = require('../bin/deploy');
 var destDir = 'deployments/';
 var repositoryBuildConfig = require('../config/gitrepository');
 var fs = require('fs');
-var pool = require('../mysql');
 
+var versionModel = require('../models/version');
 var qiniuUpload = require('../utils/qiniu_upload2cdn');
 
-function deploy() {
-    pool.query('SELECT * FROM fs_version', function(err, rows, fields) {
-        console.log('MYSQL');
-        
-        console.log('The solution is: ', rows);
-    });
-}
-
 function index(req, res, next) {
-  res.render('deploy', { title: '前端服务化部署(Frontend Servation Deploy)' });
+    res.render('deploy', { title: '前端服务化部署(Frontend Servation Deploy)' });
 }
 
 function create(req, res, next) {
@@ -95,9 +87,24 @@ function upload2cdn (req, res, next) {
     res.send(200)
 }
 
+function deployments(req, res, next) {
+    var params = req.params;
+    versionModel.getDeployments(params, function(err, rows, fields) {
+        res.send(rows);
+    });
+}
+
+function renderDeployments(req, res, next) {
+    var params = req.params;
+    versionModel.getDeployments(params, function(err, rows, fields) {
+        res.render('partails/deploy_list', {data: rows});
+    });
+}
+
 module.exports = {
     index: index,
-    deploy: deploy,
+    deployments: deployments,
+    renderDeployments: renderDeployments,
     create: create,
     update: update,
     rebuild: rebuild,

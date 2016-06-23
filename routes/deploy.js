@@ -7,6 +7,8 @@ router.get('/', deployCtrl.index);
 
 
 router.get('/manifest/latest/:platform/:deployment', deployCtrl.getManifest);
+router.get('/list', deployCtrl.deployments);
+router.get('/list.html', deployCtrl.renderDeployments);
 
 router.post('/repository/create', deployCtrl.create);
 router.post('/repository/update', deployCtrl.update);

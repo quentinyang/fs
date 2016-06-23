@@ -15,4 +15,6 @@ gitName=${repository##*/}
 baseGitName=${gitName%.git}
 
 cd $baseGitName
+console.log('Start npm install')
 npm install
+console.log('End npm install')
