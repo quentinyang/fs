@@ -1,0 +1,4 @@
+{
+  "verbose": true,
+  "ignore": ["access.log", "error.log", "npm-debug.log", "deployments/*"]
+}
