@@ -1,8 +1,28 @@
 var pool = require('../mysql');
 
+
+function current() {
+    var datetime = new Date();
+
+    var year = _format(datetime.getFullYear());
+    var month = _format(datetime.getMonth() + 1);
+    var day = _format(datetime.getDate());
+    var h = _format(datetime.getHours());
+    var m = _format(datetime.getMinutes());
+    var s = _format(datetime.getSeconds());
+    var ms = _format(datetime.getMilliseconds());
+    var q = _format(Math.floor((datetime.getMonth() + 3) / 3));
+
+    function _format(d) {
+        return d<10 ? `0${d}` : d;
+    }
+
+    return `${year}-${month}-${day} ${h}:${m}:${s}`;
+}
+
 function create(data) {
     var author = 0;
-    var datetime = new Date().toLocaleString('zh-cn', {hour12: false});
+    var datetime = current();
     var sql = "INSERT INTO fs_version (`deployment`,`platform`,`branch`,`version`,`author`,`created`,`updated`,`desc`)" + 
                     `VALUES ("${data.deployment}", "${data.platform}", "${data.branch}", "", ${author}, "${datetime}", "${datetime}", "")`;
     console.log(sql);
@@ -16,7 +36,7 @@ function create(data) {
 }
 
 function update(data) {
-    var datetime = new Date().toLocaleString('zh-cn', {hour12: false});
+    var datetime = current();
     var sql = `UPDATE fs_version SET status=${data.status}, updated="${datetime}" WHERE deployment="${data.deployment}" 
                     AND platform="${data.platform}" AND  branch="${data.branch}" ORDER BY created DESC LIMIT 1`;
     console.log(sql);
