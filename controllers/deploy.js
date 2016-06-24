@@ -84,7 +84,7 @@ function upload2cdn (req, res, next) {
 
     qiniuUpload.uploadDir(dir, root, force);
 
-    res.send(200)
+    res.send([])
 }
 
 function deployments(req, res, next) {

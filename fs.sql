@@ -36,7 +36,7 @@ CREATE TABLE `fs_version` (
   `desc` varchar(100) NOT NULL DEFAULT '{}',
   PRIMARY KEY (`id`),
   KEY `idx_fs_version_deployment_platform_branch` (`deployment`,`platform`,`branch`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -58,4 +58,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-06-23 10:57:11
+-- Dump completed on 2016-06-24 15:15:50

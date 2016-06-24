@@ -3,15 +3,14 @@ $(function() {
         // deploy
         var $deploy = $('.deploy');
         var $message = $('.message', $deploy);
-        var repository = $('.repository', $deploy).val();
-        var deployment = $('.deployment', $deploy).val();
-        var branch = $('.branch', $deploy).val();
-        var platform = $('.platform', $deploy).val();
-
         var $create = $('.button-create', $deploy);
         var $rebuild = $('.button-rebuild', $deploy);
 
         $create.on('click', function(e) {
+            var repository = $('.repository', $deploy).val();
+            var deployment = $('.deployment', $deploy).val();
+            var branch = $('.branch', $deploy).val();
+            var platform = $('.platform', $deploy).val();
             
             $.ajax({
                 type: 'post',
@@ -33,6 +32,11 @@ $(function() {
         });
 
         $rebuild.on('click', function(e) {
+            var repository = $('.repository', $deploy).val();
+            var deployment = $('.deployment', $deploy).val();
+            var branch = $('.branch', $deploy).val();
+            var platform = $('.platform', $deploy).val();
+
             rebuild({
                 repository: repository,
                 branch: branch,
@@ -67,13 +71,12 @@ $(function() {
 
     (function () {
         // upload
-        $upload = $('.upload');
-        $message = $('.message', $upload);
-        var platform = $('.platform', $upload).val();
-
-        $button = $('.button-upload', $upload);
+        var $upload = $('.upload');
+        var $message = $('.message', $upload);
+        var $button = $('.button-upload', $upload);
 
         $button.on('click', function(e) {
+            var platform = $('.platform', $upload).val();
             
             $.ajax({
                 type: 'post',
