@@ -23,8 +23,8 @@ function current() {
 function create(data) {
     var author = 0;
     var datetime = current();
-    var sql = "INSERT INTO fs_version (`deployment`,`platform`,`branch`,`version`,`author`,`created`,`updated`,`desc`)" + 
-                    `VALUES ("${data.deployment}", "${data.platform}", "${data.branch}", "", ${author}, "${datetime}", "${datetime}", "")`;
+    var sql = "INSERT INTO fs_version (`repository`,`deployment`,`platform`,`branch`,`version`,`author`,`created`,`updated`,`desc`)" + 
+                    `VALUES ("${data.repository}","${data.deployment}", "${data.platform}", "${data.branch}", "", ${author}, "${datetime}", "${datetime}", "")`;
     console.log(sql);
     pool.query(sql, function(err, rows, fields) {
         if (! err) {

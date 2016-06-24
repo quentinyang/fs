@@ -1,15 +1,15 @@
 $(function() {
     (function() {
         // deploy
-        $deploy = $('.deploy');
-        $message = $('.message', $deploy);
+        var $deploy = $('.deploy');
+        var $message = $('.message', $deploy);
         var repository = $('.repository', $deploy).val();
         var deployment = $('.deployment', $deploy).val();
         var branch = $('.branch', $deploy).val();
         var platform = $('.platform', $deploy).val();
 
-        $create = $('.button-create', $deploy);
-        $rebuild = $('.button-rebuild', $deploy);
+        var $create = $('.button-create', $deploy);
+        var $rebuild = $('.button-rebuild', $deploy);
 
         $create.on('click', function(e) {
             
