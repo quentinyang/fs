@@ -4,6 +4,27 @@ block content
     h1= title
     p 欢迎使用 #{title}
 
+    h2 上传工具
+    div(class="upload")
+        div(class="row")
+            div(class="columns small-2")
+                label 选择部署平台
+                select(name="platform" class="platform")
+                    option(value="app-site") PC(app-site)
+                    option(value="app-crm") CRM(app-crm)
+                    option(value="app-platform") BOSS(app-platform)
+                    option(value="app-bureau") 生态圈(app-bureau)
+                    option(value="retrx-mgt") 交易(retrx-mgt)
+
+        div(class="row text-warning message")
+
+        div(class="row")
+            input(
+                type="button"
+                class="button small button-upload" value="上传"
+            )
+        
+
     h2 部署工具
     div(class="deploy")
         div(class="row")
@@ -12,32 +33,22 @@ block content
         div(class="row")
             input(
                 type="button"
-                class="button-sm button-create" value="新建"
+                class="button small button-create" value="构建"
             )
 
             input(
                 type="button"
-                class="button-sm button-rebuild" value="重新部署"
+                class="button small button-rebuild" value="重新部署"
             )
-    
-    h2 上传工具
-    div(class="upload")
-        div(class="row")
-            label 选择部署平台
-            select(name="platform" class="platform")
-                option(value="app-site") PC(app-site)
-                option(value="app-crm") CRM(app-crm)
-                option(value="app-platform") BOSS(app-platform)
-                option(value="app-bureau") 生态圈(app-bureau)
-                option(value="retrx-mgt") 交易(retrx-mgt)
 
-        div(class="row")
-            input(
-                type="button"
-                class="button-sm button-upload" value="上传"
-            )
-        div(class="message")
 
     h2 部署列表
-    div(class="deployment-list")
+    div(class="row")
+        input(
+                type="button"
+                class="button small deployment-refresh"
+                value="刷新"
+        )
+    div(class="row deployment-list")
+
     

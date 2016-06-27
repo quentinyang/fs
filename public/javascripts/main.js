@@ -6,11 +6,14 @@ $(function() {
         var $create = $('.button-create', $deploy);
         var $rebuild = $('.button-rebuild', $deploy);
 
+        var $repository = $('.repository', $deploy);
+        var $platform = $('.platform', $deploy);
+
         $create.on('click', function(e) {
-            var repository = $('.repository', $deploy).val();
+            var repository = $repository.val();
             var deployment = $('.deployment', $deploy).val();
             var branch = $('.branch', $deploy).val();
-            var platform = $('.platform', $deploy).val();
+            var platform = $platform.val();
             
             $.ajax({
                 type: 'post',
@@ -95,19 +98,28 @@ $(function() {
 
 
     (function() {
+        $refresh = $('.deployment-refresh');
         $deploymentList = $('.deployment-list');
         $rebuild = $('.rebuild', $deploymentList);
+        
         function renderList(data) {
             var html = data || '';
             $deploymentList.html(html);
         }
-        $.ajax({
-            url: '/deploy/list.html',
-            success: renderList,
-            error: function(err){
-                console.log('error', err);
-            }
-        })
+        
+        function refresh(e) {
+            $.ajax({
+                url: '/deploy/list.html',
+                success: renderList,
+                error: function(err){
+                    console.log('error', err);
+                }
+            })
+        }
+
+        $refresh.on('click', refresh);
+
+        refresh();
 
         $deploymentList.on('click', '.rebuild', function(e) {
             var $target = $(e.target);
@@ -119,6 +131,8 @@ $(function() {
                 deployment: params.deployment,
                 platform: params.platform
             }, function(data) {
+                    $('.status span', $target.parent().parent()).removeClass('text-success').removeClass('text-alert');
+                    $('.status span', $target.parent().parent()).addClass('text-warning');
                     $('.status span', $target.parent().parent()).text('正在处理中');
             });
             

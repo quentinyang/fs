@@ -10,16 +10,31 @@ function index(req, res, next) {
     res.render('deploy', { title: '前端服务化部署(Frontend Servation Deploy)' });
 }
 
-function create(req, res, next) {
+function _formatParams(req) {
     var params = req.body;
+    
+    params.repository = (params.platform == 'retrx-mgt') 
+                                        ? repositoryBuildConfig.repository['retrx-mgt']
+                                        : repositoryBuildConfig.repository.angejia;
 
-    if (! params.repository || ! params.branch || ! params.deployment || !params.platform) {
+    return params;
+}
+
+function create(req, res, next) {
+    
+    var params = _formatParams(req);    
+
+    if (! params.repository || ! params.branch || ! params.deployment || ! params.platform) {
         res.status(400).send("Parameter Error: " + JSON.stringify(params));
         return;
     }
 
     console.log('Post Parameter: \n', params);
-    deployTool.create(params.repository, params.branch, params.deployment, params.platform, destDir);
+    deployTool.create(params.repository, params.branch, params.deployment, params.platform, destDir, function (rep, bra, dep, pla, des) {
+        var ufaConfig = repositoryBuildConfig[pla];
+        ufaConfig.debug = false;
+        deployTool.rebuild(rep, bra, dep, pla, des, ufaConfig);
+    });
 
     res.send(params);
 }
@@ -30,9 +45,9 @@ function update(req, res, next) {
 
 function rebuild(req, res, next) {
 
-    var params = req.body;
+    var params = _formatParams(req);    
 
-    if (! params.repository || ! params.branch || ! params.deployment || !params.platform) {
+    if (! params.repository || ! params.branch || ! params.deployment || ! params.platform) {
         res.status(400).send("Parameter Error: " + JSON.stringify(params));
         return;
     }

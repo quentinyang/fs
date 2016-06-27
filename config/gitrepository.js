@@ -1,7 +1,9 @@
 module.exports = {
-    //
-    angejia: 'git@git.corp.angejia.com:service/angejia.git',
-    boss: 'https://git.corp.angejia.com/service/retrx-mgt.git',
+    
+    repository: {
+        angejia: 'git@git.corp.angejia.com:service/angejia.git',
+        'retrx-mgt': 'git@git.corp.angejia.com:service/retrx-mgt.git',    
+    },
     
     "app-site": {
         origin: 'app-site',

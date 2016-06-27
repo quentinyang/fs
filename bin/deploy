@@ -13,7 +13,7 @@ var destDir = '../deployments/';
 
 var versionModel = require('../models/version');
 
-function createRepository(repository, branch, deployment, platform, destDir) {
+function createRepository(repository, branch, deployment, platform, destDir, callback) {
     var command = [shellCreateRepository, repository, branch, deployment, destDir].join(' ');
     console.log('Execute: ', command);
     exec(command, (error, stdout, stderr) => {
@@ -23,6 +23,7 @@ function createRepository(repository, branch, deployment, platform, destDir) {
         }
         console.log(`stdout: ${stdout}`);
 
+        callback && callback(repository, branch, deployment, platform, destDir);
         versionModel.create({
             repository: repository,
             branch: branch,
@@ -92,24 +93,3 @@ if (process.argv.length > 2) {
         author: ''
     });
 }
-
-// var command = '';
-// const exec = require('child_process').exec;
-// exec('mkdir test && cd test && git clone git@git.corp.angejia.com:service/retrx-mgt.git', (error, stdout, stderr) => {
-//   if (error) {
-//     console.error(`exec error: ${error}`);
-//     return;
-//   }
-//   console.log(`stdout: ${stdout}`);
-//   console.log(`stderr: ${stderr}`);
-// });
-
-
-// const execFile = require('child_process').execFile;
-// const child = execFile('node', ['--version'], (error, stdout, stderr) => {
-//   if (error) {
-//     throw error;
-//   }
-//   console.log(stdout);
-// });
-
