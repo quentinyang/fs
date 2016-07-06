@@ -18,5 +18,4 @@ cd $baseGitName
 
 echo "Start npm install"
 npm install
-
 echo "End npm install"

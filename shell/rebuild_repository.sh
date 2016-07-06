@@ -27,7 +27,7 @@ branchDirectory="$destDir/$branchName/$deployment/$baseGitName"
 cd $branchDirectory
 ufaCommand="./node_modules/gulp-ufa/bin/ufa $ufaOriginDir $ufaMode --dir $ufaDestDir -r $ufaRule"
 
-echo "Execute: $ufaCommand"
+echo "Execute: $ufaCommand under " `pwd`
 # gulp-ufa ./ -p --dir public/dist -r app-crm
 $ufaCommand
 

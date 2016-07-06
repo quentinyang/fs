@@ -13,17 +13,44 @@ var destDir = '../deployments/';
 
 var versionModel = require('../models/version');
 
-function createRepository(repository, branch, deployment, platform, destDir, callback) {
+/**
+ * @param object params
+ * properties:
+ *  - repository required
+ *  - branch required
+ *  - deployment required
+ *  - destDir required
+ *  - platform optional
+ *  - success optional
+ *  - error optional
+ */
+function createRepository(params) {
+    var repository = params.repository;
+    var branch = params.branch;
+    var deployment= params.deployment;
+    var destDir = params.destDir;
+    var platform = params.platform;
+    var success = params.success;
+    var error = params.error;
+
     var command = [shellCreateRepository, repository, branch, deployment, destDir].join(' ');
     console.log('Execute: ', command);
     exec(command, (error, stdout, stderr) => {
         if (error) {
             console.log(`${error} stderr: ${stderr}`);
+
+            versionModel.update({
+                status: 0,
+                branch: branch,
+                deployment: deployment,
+                platform, platform
+            });
+
+            error && error(params)
             return;
         }
-        console.log(`stdout: ${stdout}`);
+        console.log(`STDOUT: ${stdout}`);
 
-        callback && callback(repository, branch, deployment, platform, destDir);
         versionModel.create({
             repository: repository,
             branch: branch,
@@ -31,9 +58,12 @@ function createRepository(repository, branch, deployment, platform, destDir, cal
             platform, platform
         });
 
+        success && success(params);
+
     });
 }
 
+// TODO::update
 function updateRepository(repository, branch, deployment, destDir) {
     var command = [shellUpdateRepository, repository, branch, deployment, destDir].join(' ');
     console.log('Execute: ', command);
@@ -47,18 +77,50 @@ function updateRepository(repository, branch, deployment, destDir) {
 }
 
 /**
- * 
+ * Rebuild repository
+ * @param object params
+ *      properties:
+ *      - repository required
+ *      - branch required
+ *      - deployment required
+ *      - destDir required
+ *      - platform required
+ *      - ufaConfig object required
+ *          - debug boolean required
+ *          - origin string required
+ *          - dest string required
+ *          - rule string required
+ *          - middlePath string optional
+ *      - success optional
+ *      - error optional
  */
-function rebuidRepository(repository, branch, deployment, platform, destDir, ufaConfig) {
+function rebuidRepository(params) {
+    var repository = params.repository;
+    var branch = params.branch;
+    var deployment= params.deployment;
+    var destDir = params.destDir;
+    var platform = params.platform;
+    var ufaConfig = params.ufaConfig;
+    var success = params.success;
+    var error = params.error;
+
     var command = [shellRebuildRepository, repository, branch, deployment, destDir, 
                                 ufaConfig.debug, ufaConfig.origin, ufaConfig.dest, ufaConfig.rule].join(' ');
     console.log('Execute: ', command);
     exec(command, (error, stdout, stderr) => {
         if (error) {
             console.log(`${error} stderr: ${stderr}`);
+            versionModel.update({
+                repository: repository,
+                branch: branch,
+                deployment: deployment,
+                platform, platform,
+                status: 0
+            });
+            error && error(params)
             return;
         }
-        console.log(`stdout: ${stdout}`);
+        console.log(`STDOUT: ${stdout}`);
 
         versionModel.update({
             repository: repository,
@@ -67,13 +129,15 @@ function rebuidRepository(repository, branch, deployment, platform, destDir, ufa
             deployment: deployment,
             status: 1
         });
+
+        success && success(params);
         
     });
 
 }
 
 function store(params) {
-    // TODO::Store database.
+    // TODO::Remove Store database.
     console.log('# Store', params)
 }
 

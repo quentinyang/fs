@@ -20,6 +20,15 @@ function current() {
     return `${year}-${month}-${day} ${h}:${m}:${s}`;
 }
 
+/**
+ * Create version
+ * @param object data
+ *      properties:
+ *      - repository
+ *      - deployment
+ *      - platform
+ *      - branch
+ */
 function create(data) {
     var author = 0;
     var datetime = current();
@@ -35,6 +44,14 @@ function create(data) {
     console.log('create over');
 }
 
+/** 
+ * Update status
+ * @param object data
+ *      - status Int
+ *      - deployment String
+ *      - platform String
+ *      - branch String
+ */
 function update(data) {
     var datetime = current();
     var sql = `UPDATE fs_version SET status=${data.status}, updated="${datetime}" WHERE deployment="${data.deployment}" 
@@ -48,8 +65,13 @@ function update(data) {
     console.log('update over');
 }
 
-function remove() {
-
+function remove(id, callback) {
+    var sql = `delete from fs_version where id="${id}"`;
+    pool.query(sql, function(err, rows, fields) {
+        if (! err) {
+            callback && callback(err, rows, fields);
+        }
+    });
 }
 
 function getDeployments(params, callback) {

@@ -65,7 +65,7 @@ function uploadFile(token, key, localFile) {
 /**
  * Upload all files from specified directory.
  * @param string dirPath required  e.g.: 'deployments/master/app-site/public'.
- * @param string rootDir optional e.g:  'public'.
+ * @param string rootDir optional e.g:  'app-site'.
  * @param boolean force optional e.g.: true. If set true, force to upload.
  * client.stat results:
  *  - error: { code: 612, error: 'no such file or directory' }
@@ -78,8 +78,7 @@ function uploadDir(dirPath, rootDir, force) {
     //构建bucketmanager对象
     var client = new qiniu.rs.Client();
 
-    allFiles.forEach(function(item, index, arr){
-        var localFile = item;
+    allFiles.forEach(function(localFile, index, arr) {
         var key = localFile.replace(dirPath, rootDir);
         var token = generateToken(bucket, key);
 

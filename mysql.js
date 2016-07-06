@@ -9,7 +9,9 @@ var pool  = mysql.createPool({
 
 function query(sql, success, error) {
 
-    pool.query(sql, function(err, rows, fields) {
+    pool.getConnection(function(err, connection) {
+      // Use the connection
+      connection.query( sql, function(err, rows, fields) {
         if (err) {
             error && error(err);
             throw err;
@@ -17,9 +19,12 @@ function query(sql, success, error) {
 
         success && success(err, rows, fields);
 
+        // Released the connection and returned to the pool.
+        connection.release();
+      });
     });
-
 }
+
 
 module.exports = {
     query: query,
