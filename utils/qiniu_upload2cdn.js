@@ -18,7 +18,7 @@ function generateToken(bucket, key) {
 // 获取指定目录下所有文件
 /**
  * Get all files.
- * @path string required.
+ * @path string required. e.g.: public/
  * @return array
  */
 function getAllFiles(path) {
@@ -42,49 +42,76 @@ function getAllFiles(path) {
         }
     }
 
-    scanDir(path);
+    scanDir(path.replace(/\/$/,''));
 
     return files;    
 }
 
-//构造上传函数
-function uploadFile(token, key, localFile) {
+/**
+ * 构造上传函数
+ * @param params object
+ *  Properties:
+ *  - key string  required
+ *  - file string required, local filepath
+ *  - success function, success callback
+ *  - error function, error callback
+ * 
+ */
+function uploadFile(params) {
+    var key = params.key;
+    var token = generateToken(bucket, key);
+    var localFile = params.file;
 
     var extra = new qiniu.io.PutExtra();
+
     qiniu.io.putFile(token, key, localFile, extra, function(err, ret) {
       if(!err) {
         // 上传成功， 处理返回值
-        console.log('Success', ret);
+        console.log('Success', err, ret);
+        params.success && params.success(ret, params);
       } else {
         // 上传失败， 处理返回代码
-        console.log("Error", localFile, err);
+        console.log("Error", ret, err, params);
+        params.error && params.error(ret, params);
       }
   });
 }
 
 /**
  * Upload all files from specified directory.
- * @param string dirPath required  e.g.: 'deployments/master/app-site/public'.
- * @param string rootDir optional e.g:  'app-site'.
- * @param boolean force optional e.g.: true. If set true, force to upload.
+ * @param params object
+ * Properties:
+ *  - dir string required, directory path e.g.: 'deployments/master/app-site/public/'.
+ *  - root string optional, e.g:  'app-site/'.
+ *  - force boolean optional, default true. If set true, force to upload.
+ * 
  * client.stat results:
  *  - error: { code: 612, error: 'no such file or directory' }
  *  - { fsize: 9, hash: 'Fo7JoAv9CbMZCsayIlHbsaqVoFed', mimeType: 'application/octet-stream', putTime: 14661367563592274 }
  */
-function uploadDir(dirPath, rootDir, force) {
+function uploadDir(params) {
+    var dirPath = params.dir;
+    var rootDir = params.root || '/';
+    var force = params.force === undefined ? true : params.force;
+    var success = params.success;
+    var error = params.error;
+
     var allFiles = getAllFiles(dirPath);
-    var rootDir = rootDir || '';
 
     //构建bucketmanager对象
     var client = new qiniu.rs.Client();
 
     allFiles.forEach(function(localFile, index, arr) {
         var key = localFile.replace(dirPath, rootDir);
-        var token = generateToken(bucket, key);
 
         client.stat(bucket, key, function(err, ret) {
             if (err || force == true) {
-                uploadFile(token, key, localFile);    
+                uploadFile({
+                    key: key,
+                    file: localFile,
+                    success: success,
+                    error: error
+                });    
             }
         });
     });

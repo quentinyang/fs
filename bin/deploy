@@ -47,6 +47,7 @@ function createRepository(params) {
             });
 
             error && error(params)
+
             return;
         }
         console.log(`STDOUT: ${stdout}`);
@@ -122,6 +123,8 @@ function rebuidRepository(params) {
         }
         console.log(`STDOUT: ${stdout}`);
 
+        success && success(params);
+
         versionModel.update({
             repository: repository,
             branch: branch, 
@@ -129,8 +132,6 @@ function rebuidRepository(params) {
             deployment: deployment,
             status: 1
         });
-
-        success && success(params);
         
     });
 

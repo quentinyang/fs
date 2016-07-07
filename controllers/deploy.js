@@ -6,6 +6,8 @@ var fs = require('fs');
 var versionModel = require('../models/version');
 var qiniuUpload = require('../utils/qiniu_upload2cdn');
 
+var versionModel = require('../models/version');
+
 // 首页
 function index(req, res, next) {
     res.render('deploy', {title: '前端服务化部署(Frontend Servation Deploy)'});
@@ -24,7 +26,7 @@ function _formatParams(req) {
 
 // 快捷部署，包含create, npm install, gulp-ufa, upload cdn, db log.
 function publish(req, res, next) {
-    var params = req.body || {};
+    var params = req.params || {};
 
     switch(params.platform) {
         case 'angejia':
@@ -46,7 +48,18 @@ function publish(req, res, next) {
                         ufaConfig: ufaConfig,
                         success: function(params) {
                             console.log('_publish-crm', params);
-                            upload2Qiniu({platform: 'app-crm'});
+                            upload2Qiniu({
+                                platform: 'app-crm',
+                                error: function(err, ret) {
+                                    versionModel.update({
+                                        repository: params.repository,
+                                        branch: params.branch, 
+                                        platform: 'app-crm',
+                                        deployment: params.deployment,
+                                        status: 0
+                                    });
+                                }
+                            });
                         }
                     };
                 })(params));
@@ -63,7 +76,18 @@ function publish(req, res, next) {
                         ufaConfig: ufaConfig,
                         success: function(params) {
                             console.log('_publish-bureau', params);
-                            upload2Qiniu({platform: 'app-bureau'});
+                            upload2Qiniu({
+                                platform: 'app-bureau',
+                                error: function(err, ret) {
+                                    versionModel.update({
+                                        repository: params.repository,
+                                        branch: params.branch, 
+                                        platform: 'app-bureau',
+                                        deployment: params.deployment,
+                                        status: 0
+                                    });
+                                }
+                            });
                         }
                     };
                 })(params));
@@ -80,7 +104,18 @@ function publish(req, res, next) {
                         ufaConfig: ufaConfig,
                         success: function(params) {
                             console.log('_publish-platform', params);
-                            upload2Qiniu({platform: 'app-platform'});
+                            upload2Qiniu({
+                                    platform: 'app-platform',
+                                    error: function(err, ret) {
+                                        versionModel.update({
+                                            repository: params.repository,
+                                            branch: params.branch, 
+                                            platform: 'app-platform',
+                                            deployment: params.deployment,
+                                            status: 0
+                                        });
+                                    }
+                            });
                         }
                     };
                 })(params));
@@ -112,8 +147,18 @@ function _publish(platform, callback) {
                     ufaConfig: ufaConfig,
                     success: function() {
                         console.log('_publish', params);
-
-                        upload2Qiniu({platform: params.platform});
+                        upload2Qiniu({
+                            platform: params.platform,
+                            error: function(err, ret) {
+                                versionModel.update({
+                                    repository: params.repository,
+                                    branch: params.branch, 
+                                    platform: params.platform,
+                                    deployment: params.deployment,
+                                    status: 0
+                                });
+                            }
+                        });
                     }
                 };
             })(params));
@@ -203,16 +248,18 @@ function upload2Qiniu(params) {
     var deployment = params.deployment || 'production';
     var platform = params.platform;
     var combinedPath = platform;
+    var uploadDir = 'public/'
 
     if (repositoryBuildConfig[platform] && repositoryBuildConfig[platform].middlePath) {
         combinedPath = repositoryBuildConfig[platform].middlePath + '/' + platform;
+        uploadDir = repositoryBuildConfig[platform].dest;
     }
 
-    var dir = 'deployments/master/' + deployment + '/' + combinedPath + '/public';
-    var root = platform;
+    var dir = 'deployments/master/' + deployment + '/' + combinedPath + '/' + uploadDir;
+    var rootDir = platform + '/';
     var force = false;
 
-    qiniuUpload.uploadDir(dir, root, force);
+    qiniuUpload.uploadDir({dir: dir, root: rootDir, force: force, success: params.success, error: params.error});
 
 }
 
