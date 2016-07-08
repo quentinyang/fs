@@ -259,7 +259,7 @@ function upload2Qiniu(params) {
     }
 
     var dir = 'deployments/master/' + deployment + '/' + combinedPath + '/' + uploadDir;
-    var rootDir = platform + '/';
+    var rootDir = platform + '/dist/';
     var force = false;
 
     qiniuUpload.uploadDir({dir: dir, root: rootDir, force: force, success: params.success, error: params.error});
