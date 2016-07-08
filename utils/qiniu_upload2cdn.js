@@ -42,6 +42,7 @@ function getAllFiles(path) {
         }
     }
 
+    console.log('Get path: ', path);
     scanDir(path.replace(/\/$/,''));
 
     return files;    
@@ -118,6 +119,7 @@ function uploadDir(params) {
 }
 
 module.exports = {
-    uploadDir: uploadDir
+    uploadDir: uploadDir,
+    getAllFiles: getAllFiles
 }
 

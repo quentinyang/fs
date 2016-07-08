@@ -6,7 +6,7 @@ var deployCtrl = require('../controllers/deploy');
 router.get('/', deployCtrl.index);
 
 // 获取指定平台和部署环境的manifest
-router.get('/manifest/latest/:platform/:deployment', deployCtrl.getManifest);
+router.get('/manifest/latest/:platform/:deployment/:branch', deployCtrl.getManifest);
 // 获取部署列表
 router.get('/list', deployCtrl.deployments);
 // 获取部署列表html
@@ -23,6 +23,6 @@ router.post('/repository/rebuild', deployCtrl.rebuild);
 router.post('/repository/upload2cdn/:platform', deployCtrl.upload2cdn)
 
 // 快速发布
-router.post('/publish/:platform', deployCtrl.publish);
+router.post('/publish/:platform/:branch', deployCtrl.publish);
 
 module.exports = router;

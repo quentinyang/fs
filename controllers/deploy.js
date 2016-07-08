@@ -27,14 +27,16 @@ function _formatParams(req) {
 // 快捷部署，包含create, npm install, gulp-ufa, upload cdn, db log.
 function publish(req, res, next) {
     var params = req.params || {};
+    var platform = params.platform;
+    var branch = params.branch || 'master';
 
-    switch(params.platform) {
+    switch(platform) {
         case 'angejia':
         case 'app-site':
         case 'app-crm':
         case 'app-bureau':
         case 'app-platform':
-            _publish('app-site', function(params) {
+            _publish('app-site', branch, function(params) {
                 
                 deployTool.rebuild((function(params){
                     var ufaConfig = repositoryBuildConfig['app-crm'];
@@ -123,7 +125,7 @@ function publish(req, res, next) {
             break;
         case 'retrx-mgt':
         default:
-            _publish(platform);
+            _publish(platform, branch);
             break;
     }
 
@@ -131,7 +133,7 @@ function publish(req, res, next) {
 
 }
 
-function _publish(platform, callback) {
+function _publish(platform, branch, callback) {
 
         var success = function (params) {
 
@@ -168,7 +170,7 @@ function _publish(platform, callback) {
 
         deployTool.create({
             repository: repositoryBuildConfig.repository[platform == 'retrx-mgt' ? platform : 'angejia'],
-            branch: 'master',
+            branch: branch,
             deployment: 'production',
             platform: platform,
             destDir: destDir,
@@ -226,16 +228,17 @@ function rebuild(req, res, next) {
 }
 
 function getManifest(req, res, next) {
-
     var params = req.params;
     var platform = params.platform;
     var deployment = params.deployment || 'production';
+    var branch = params.branch || 'master';
     var combinedPath = platform;
     if (repositoryBuildConfig[platform] && repositoryBuildConfig[platform].middlePath) {
         combinedPath = repositoryBuildConfig[platform].middlePath + '/' + platform;
     }
 
-    var manifestPath = 'deployments/master/' + deployment + '/' + combinedPath + '/storage/assets/manifest.json';
+    var manifestPath = `deployments/${branch}/${deployment}/${combinedPath}/storage/assets/manifest.json`;
+    console.log(manifestPath);
 
     if (fs.existsSync(manifestPath)) {
         res.send(require('../' + manifestPath));
