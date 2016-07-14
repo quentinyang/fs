@@ -6,9 +6,6 @@ var fs = require('fs');
 qiniu.conf.ACCESS_KEY = qiniuConfig.access;
 qiniu.conf.SECRET_KEY = qiniuConfig.secret;
 
-// 要上传的空间
-var bucket = qiniuConfig.bucket;
-
 // 构建上传策略函数
 function generateToken(bucket, key) {
   var putPolicy = new qiniu.rs.PutPolicy(bucket+":"+key);
@@ -60,7 +57,7 @@ function getAllFiles(path) {
  */
 function uploadFile(params) {
     var key = params.key;
-    var token = generateToken(bucket, key);
+    var token = generateToken(params.bucket, key);
     var localFile = params.file;
 
     var extra = new qiniu.io.PutExtra();
@@ -99,6 +96,9 @@ function uploadDir(params) {
 
     var allFiles = getAllFiles(dirPath);
 
+    // 要上传的空间
+    var bucket = /app-bureau/.test(rootDir) ? qiniuConfig.bucketBureau : qiniuConfig.bucket;
+
     //构建bucketmanager对象
     var client = new qiniu.rs.Client();
 
@@ -108,6 +108,7 @@ function uploadDir(params) {
         client.stat(bucket, key, function(err, ret) {
             if (err || force == true) {
                 uploadFile({
+                    bucket: bucket,
                     key: key,
                     file: localFile,
                     success: success,
