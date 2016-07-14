@@ -192,6 +192,7 @@ function create(req, res, next) {
         var ufaConfig = repositoryBuildConfig[params.platform];
         ufaConfig.debug = false;
         params.ufaConfig = ufaConfig;
+        delete params.success;
         deployTool.rebuild(params);
     };
     
