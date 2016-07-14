@@ -254,13 +254,18 @@ function upload2Qiniu(params) {
     var combinedPath = platform;
     var uploadDir = 'public/';
 
-    if (repositoryBuildConfig[platform] && repositoryBuildConfig[platform].middlePath) {
-        combinedPath = repositoryBuildConfig[platform].middlePath + '/' + platform;
+    if (repositoryBuildConfig[platform]) {
+
+        if (repositoryBuildConfig[platform].middlePath) {
+            combinedPath = repositoryBuildConfig[platform].middlePath + '/' + platform;
+        }
+        
         uploadDir = repositoryBuildConfig[platform].dest;
+
     }
 
     var dir = 'deployments/master/' + deployment + '/' + combinedPath + '/' + uploadDir;
-    var rootDir = platform + '/';
+    var rootDir = platform + '/dist/';
     var force = false;
 
     var uploadParams = {dir: dir, root: rootDir, force: force, success: params.success, error: params.error};
