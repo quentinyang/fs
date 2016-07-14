@@ -7,7 +7,7 @@ module.exports = {
     access: "A84iHgfsHI7xfY3HnR56gnEVK_ek6237WNZjIEZ-",
     secret: "dy_feG5YyzdI9voi8HVrjK7GejfbNh0F6m-7QYii",
     bucket: "angejia-cdn",
-    bucketBureau: "angejia-bureau"
+    bucketBureau: "bureau"
 }
 
 
