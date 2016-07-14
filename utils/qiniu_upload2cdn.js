@@ -105,6 +105,7 @@ function uploadDir(params) {
     allFiles.forEach(function(localFile, index, arr) {
         var key = localFile.replace(dirPath, rootDir);
 
+        console.log('To upload: ', key);
         client.stat(bucket, key, function(err, ret) {
             if (err || force == true) {
                 uploadFile({

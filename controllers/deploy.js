@@ -252,7 +252,7 @@ function upload2Qiniu(params) {
     var deployment = params.deployment || 'production';
     var platform = params.platform;
     var combinedPath = platform;
-    var uploadDir = 'public/'
+    var uploadDir = 'public/';
 
     if (repositoryBuildConfig[platform] && repositoryBuildConfig[platform].middlePath) {
         combinedPath = repositoryBuildConfig[platform].middlePath + '/' + platform;
@@ -260,10 +260,12 @@ function upload2Qiniu(params) {
     }
 
     var dir = 'deployments/master/' + deployment + '/' + combinedPath + '/' + uploadDir;
-    var rootDir = platform + '/dist/';
+    var rootDir = platform + '/';
     var force = false;
 
-    qiniuUpload.uploadDir({dir: dir, root: rootDir, force: force, success: params.success, error: params.error});
+    var uploadParams = {dir: dir, root: rootDir, force: force, success: params.success, error: params.error};
+    console.log('Upload to Qiniu parameters:', uploadParams);
+    qiniuUpload.uploadDir(uploadParams);
 
 }
 
