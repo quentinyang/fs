@@ -1,18 +1,16 @@
-# FS
+# Frontend Servitization (FS)
 
 ## Start
 
 ```
+# 安装依赖
+npm install
+
+# 启动服务
+# npm start  或者 node bin/www
+# 推荐使用nodemon，安装nodemon：npm install -g nodemon
 nodemon bin/www
 ```
-
-## Qiniu
-
-app-{{ item }}/public/ -r app-{{ item }}
-
-AccessKey=A84iHgfsHI7xfY3HnR56gnEVK_ek6237WNZjIEZ-
-SecretKey=dy_feG5YyzdI9voi8HVrjK7GejfbNh0F6m-7QYii
-BucketName=angejia-cdn
 
 ## Appendix
 
