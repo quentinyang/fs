@@ -242,7 +242,8 @@ function getManifest(req, res, next) {
     console.log(manifestPath);
 
     if (fs.existsSync(manifestPath)) {
-        res.send(fs.readFileSync(manifestPath));
+        var jsonContent = fs.readFileSync(manifestPath).toString();
+        res.send(JSON.parse(jsonContent));
         // res.send(require('../' + manifestPath));
         return;
     }
