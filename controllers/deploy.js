@@ -3,10 +3,10 @@ var destDir = 'deployments/';
 var repositoryBuildConfig = require('../config/gitrepository');
 var fs = require('fs');
 
-var versionModel = require('../models/version');
-var qiniuUpload = require('../utils/qiniu_upload2cdn');
+var Promise = require('bluebird');
 
 var versionModel = require('../models/version');
+var qiniuUpload = require('../utils/qiniu_upload2cdn');
 
 // 首页
 function index(req, res, next) {
@@ -318,11 +318,35 @@ function renderDeployments(req, res, next) {
     });
 }
 
+/**
+ * 获取部署详情
+ */
+function detail(req, res, next) {
+    var id = req.params.id;
+
+    new Promise(function(resolve, reject){
+        versionModel.getDeploymentById(id, function(err, rows, fields) {
+            resolve(rows);
+        });
+
+    }).then(function(rows) {
+        console.log(rows.length)
+        if (rows.length > 0) {
+            res.send(rows[0]);    
+            return;
+        }
+        res.status(404).send({});
+        
+    });
+    
+}
+
 module.exports = {
     index: index,
     deployments: deployments,
     renderDeployments: renderDeployments,
     publish: publish,
+    detail: detail,
     create: create,
     update: update,
     rebuild: rebuild,

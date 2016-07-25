@@ -65,6 +65,17 @@ function update(data) {
     console.log('update over');
 }
 
+// 根据id更新status值
+function updateStatusById(id, status) {
+    var datetime = current();
+    var sql = `UPDATE fs_version SET status=${status} WHERE id=${id}`;
+    pool.query(sql, function(err, rows, fields) {
+        if (! err) {
+        }
+        
+    });
+}
+
 function remove(id, callback) {
     var sql = `delete from fs_version where id="${id}"`;
     pool.query(sql, function(err, rows, fields) {
@@ -92,9 +103,24 @@ function getDeployments(params, callback) {
     });
 }
 
+function getDeploymentById(id, callback) {
+
+    var sql = `SELECT * FROM fs_version WHERE id=${id}`;
+    return pool.query(sql, function(err, rows, fields) {
+    
+        if (! err) {
+            console.log(rows);
+            callback && callback(err, rows, fields);
+        }
+
+    });
+
+}
+
 module.exports = {
     create: create,
     update: update,
     remove: remove,
     getDeployments: getDeployments,
+    getDeploymentById: getDeploymentById
 }
