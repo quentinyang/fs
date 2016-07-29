@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+var Promise = require('bluebird');
 
 const exec = require('child_process').exec;
 const shellCreateRepository = './shell/create_repository.sh';
@@ -13,9 +14,30 @@ var destDir = '../deployments/';
 
 var versionModel = require('../models/version');
 
+// -- Coding Start@2016-08-03
+/**
+ * Create deploy log into database.
+ * @return Promise
+ *  var a = createDeployLog({}).then((deployId)=>{console.log(deployId)})
+ */
+function createDeployLog(params) {
+    return versionModel.create({
+                repository: params.repository,
+                branch: params.branch,
+                deployment: params.deployment,
+                platform: params.platform
+            }).then((id) => {
+                params.id = id;
+                return Promise.resolve(params);
+            });
+}
+
+// -- Coding End@2016-08-03
+
 /**
  * @param object params
  * properties:
+ *  - id required deploy id
  *  - repository required
  *  - branch required
  *  - deployment required
@@ -25,43 +47,38 @@ var versionModel = require('../models/version');
  *  - error optional
  */
 function createRepository(params) {
-    var repository = params.repository;
-    var branch = params.branch;
-    var deployment= params.deployment;
-    var destDir = params.destDir;
-    var platform = params.platform;
-    var success = params.success;
-    var error = params.error;
 
-    var command = [shellCreateRepository, repository, branch, deployment, destDir].join(' ');
-    console.log('Execute: ', command);
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`${error} stderr: ${stderr}`);
+    return new Promise((resolve, reject) => {
 
-            versionModel.update({
-                status: 0,
-                branch: branch,
-                deployment: deployment,
-                platform, platform
+        var deployId = params.id;
+        var repository = params.repository;
+        var branch = params.branch;
+        var deployment= params.deployment;
+        var destDir = params.destDir;
+        var platform = params.platform;
+
+        var command = [shellCreateRepository, repository, branch, deployment, destDir].join(' ');
+        console.log('Execute: ', command);
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`${error} stderr: ${stderr}`);
+                reject({params: params})
+                return;
+            }
+
+            console.log(`STDOUT@createRepository: ${stdout}`);
+            versionModel.updateStatusById({
+                    id: deployId,
+                    status: 1
+            }).then(() => {
+                resolve(params);
             });
 
-            error && error(params)
-
-            return;
-        }
-        console.log(`STDOUT: ${stdout}`);
-
-        versionModel.create({
-            repository: repository,
-            branch: branch,
-            deployment: deployment,
-            platform, platform
         });
 
-        success && success(params);
+    })
 
-    });
+
 }
 
 // TODO::update
@@ -81,6 +98,7 @@ function updateRepository(repository, branch, deployment, destDir) {
  * Rebuild repository
  * @param object params
  *      properties:
+ *      - id required
  *      - repository required
  *      - branch required
  *      - deployment required
@@ -96,6 +114,7 @@ function updateRepository(repository, branch, deployment, destDir) {
  *      - error optional
  */
 function rebuidRepository(params) {
+    var deployId = params.id;
     var repository = params.repository;
     var branch = params.branch;
     var deployment= params.deployment;
@@ -104,36 +123,31 @@ function rebuidRepository(params) {
     var ufaConfig = params.ufaConfig;
     var success = params.success;
     var error = params.error;
+    
+    return new Promise((resolve, reject) => {
 
-    var command = [shellRebuildRepository, repository, branch, deployment, destDir, 
-                                ufaConfig.debug, ufaConfig.origin, ufaConfig.dest, ufaConfig.rule].join(' ');
-    console.log('Execute: ', command);
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`${error} stderr: ${stderr}`);
-            versionModel.update({
-                repository: repository,
-                branch: branch,
-                deployment: deployment,
-                platform, platform,
-                status: 0
+        var command = [shellRebuildRepository, repository, branch, deployment, destDir, 
+                                    ufaConfig.debug, ufaConfig.origin, ufaConfig.dest, ufaConfig.rule].join(' ');
+        console.log('Execute: ', command);
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`${error} stderr: ${stderr}`);
+                reject(params);
+                return;
+            }
+            console.log(`STDOUT: ${stdout}`);
+
+            versionModel.updateStatusById({
+                id: deployId,
+                status: 2
+            }).then(() => {
+                resolve(params);    
             });
-            error && error(params)
-            return;
-        }
-        console.log(`STDOUT: ${stdout}`);
-
-        success && success(params);
-
-        versionModel.update({
-            repository: repository,
-            branch: branch, 
-            platform: platform,
-            deployment: deployment,
-            status: 1
+            
         });
-        
+
     });
+
 
 }
 
@@ -143,6 +157,7 @@ function store(params) {
 }
 
 module.exports = {
+    createDeployLog: createDeployLog,// created at 2016-08-03
     create: createRepository,
     update: updateRepository,
     rebuild: rebuidRepository,
