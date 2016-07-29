@@ -26,7 +26,7 @@ router.post('/repository/upload2cdn/:platform', deployCtrl.upload2cdn)
 // 快速发布
 router.post('/publish/:platform/:branch', deployCtrl.publish);
 // 获取部署ID对应的manifest文件内容
-router.get('/:id', deployCtrl.detail);
-
+router.get('/publish/:id', deployCtrl.detail);
+router.get('/publish/manifest/:id', deployCtrl.getManifestById);
 
 module.exports = router;

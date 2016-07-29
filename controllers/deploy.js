@@ -341,6 +341,18 @@ function detail(req, res, next) {
     
 }
 
+function getManifestById(req, res, next) {
+    var id = req.params.id;
+
+    // get detail
+    versionModel.getDeploymentById(id).then(function(data) {
+        console.log(data)
+        var platform = data.platform;
+        var branch = data.branch;
+    });
+
+}
+
 module.exports = {
     index: index,
     deployments: deployments,
@@ -351,5 +363,6 @@ module.exports = {
     update: update,
     rebuild: rebuild,
     getManifest: getManifest,
+    getManifestById: getManifestById,
     upload2cdn: upload2cdn
 };

@@ -1,5 +1,6 @@
 var pool = require('../mysql');
 
+var Promise = require('bluebird');
 
 function current() {
     var datetime = new Date();
@@ -103,17 +104,19 @@ function getDeployments(params, callback) {
     });
 }
 
-function getDeploymentById(id, callback) {
+function getDeploymentById(id) {
 
-    var sql = `SELECT * FROM fs_version WHERE id=${id}`;
-    return pool.query(sql, function(err, rows, fields) {
-    
-        if (! err) {
-            console.log(rows);
-            callback && callback(err, rows, fields);
-        }
+    return new Promise(function(resolve, reject) {
+        var sql = `SELECT * FROM fs_version WHERE id=${id} LIMIT 1`;
+        pool.query(sql, function(err, rows, fields) {
+            if (! err) {
+                resolve(rows)
+            } else {
+                reject({err: err, rows: rows, fields: fields})
+            }
 
-    });
+        });
+    })
 
 }
 
