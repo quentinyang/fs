@@ -16,12 +16,32 @@ function index(req, res, next) {
 function _formatParams(req) {
     var params = req.body;
 
-    params.destDir = destDir;
-    params.repository = (params.platform == 'retrx-mgt') 
-                                        ? repositoryBuildConfig.repository['retrx-mgt']
-                                        : repositoryBuildConfig.repository.angejia;
+    params.destDir = destDir;// Global
+    params.repository = _getRepositoryByPlatform(params.platform);
 
     return params;
+}
+
+/**
+ * 根据平台获取仓库地址
+ * @param platform string. 'app-site', 'retrx-mgt', 'angejia'
+ * @dependence: Global `repositoryBuildConfig`
+ * @return strings
+ */
+function _getRepositoryByPlatform(platform) {
+    var index;
+    switch(platform) {
+        case 'app-site':
+        case 'app-crm':
+        case 'app-bureau':
+        case 'app-platform':
+            index = 'angejia';
+            break;
+        default:
+            index = platform;
+            break;
+    }
+    return repositoryBuildConfig.repository[index];
 }
 
 // 快捷部署，包含create, npm install, gulp-ufa, upload cdn, db log.
@@ -169,7 +189,7 @@ function _publish(platform, branch, callback) {
         };
 
         deployTool.create({
-            repository: repositoryBuildConfig.repository[platform == 'retrx-mgt' ? platform : 'angejia'],
+            repository: _getRepositoryByPlatform(platform),
             branch: branch,
             deployment: 'production',
             platform: platform,
