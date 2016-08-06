@@ -14,7 +14,6 @@ var destDir = '../deployments/';
 
 var versionModel = require('../models/version');
 
-// -- Coding Start@2016-08-03
 /**
  * Create deploy log into database.
  * @return Promise
@@ -31,8 +30,6 @@ function createDeployLog(params) {
                 return Promise.resolve(params);
             });
 }
-
-// -- Coding End@2016-08-03
 
 /**
  * @param object params

@@ -140,11 +140,36 @@ function getDeploymentById(id) {
 
 }
 
+function setManifest(data) {
+    var datetime = current();
+    var deployId = data.id;
+    return new Promise(function(resolve, reject) {
+        var sql = `INSERT INTO fs_manifest (version_id, manifest, created, updated)
+                        VALUES (${deployId}, "${manifest}", "${datetime}", "${datetime}")`;
+        pool.query(sql, function(err, rows, fields) {
+            if (! err) {
+                resolve(rows)
+            } else {
+                reject({err: err, rows: rows, fields: fields})
+            }
+
+        });
+    })
+}
+
+function getManifestByDeployId(id) {
+    //TODO
+}
+
 module.exports = {
     create: create,
     update: update,
     updateStatusById: updateStatusById,
     remove: remove,
     getDeployments: getDeployments,
-    getDeploymentById: getDeploymentById
+    getDeploymentById: getDeploymentById,
+
+    // manifest
+    setManifest: setManifest,
+    getManifest: getManifestByDeployId
 }

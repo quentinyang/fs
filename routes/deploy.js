@@ -27,6 +27,7 @@ router.post('/repository/upload2cdn/:platform', deployCtrl.upload2cdn)
 router.post('/publish/:platform/:branch', deployCtrl.publish);
 // 获取部署ID对应的manifest文件内容
 router.get('/publish/:id', deployCtrl.detail);
+// TODO::可能并不需要
 router.get('/publish/manifest/:id', deployCtrl.getManifestById);
 
 module.exports = router;

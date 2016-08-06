@@ -50,7 +50,6 @@ function publish(req, res, next) {
     var params = req.params || {};
     var platform = params.platform;
     var branch = params.branch || 'master';
-    // console.log(11111)
 
     // 先拿到deploy id返回
     // create database data for deploy id
@@ -60,13 +59,12 @@ function publish(req, res, next) {
             deployment: 'production',
             platform: platform,
             destDir: destDir
-    }).then((params)=>{
+    }).then((params) => {
             // send response to client immediately with deploy id.
             res.send(params);
             // 返回参数，以便后续使用
             return Promise.resolve(params);
     });
-
 
     switch(platform) {
         case 'angejia':
@@ -74,102 +72,32 @@ function publish(req, res, next) {
         case 'app-crm':
         case 'app-bureau':
         case 'app-platform':
-
             deploy.then((params) => {
+                console.log('==========Start: app-site, Last Params: ==========', params)
+                params.platform = 'app-site';
                 return _deployWorkFlow(params);
+            }).then((params) => {
+                console.log('==========Start: app-crm, Last Params: ==========', params)
+                params.platform = 'app-crm';
+                return _deployWorkFlow(params);
+            }).then((params) => {
+                console.log('==========Start: app-bureau, Last Params: ==========', params)
+                params.platform = 'app-bureau';
+                return _deployWorkFlow(params);
+            }).then((params) => {
+                console.log('==========Start: app-platform, Last Params: ==========', params)
+                params.platform = 'app-platform';
+                return _deployWorkFlow(params);
+            }).then((params) => {
+                versionModel.updateStatusById({id: params.id, status: 3});
             });
-            
-            // deploy = _publish('app-site', branch, function(params) {
-                
-            //     deployTool.rebuild((function(params){
-            //         var ufaConfig = repositoryBuildConfig['app-crm'];
-            //         ufaConfig.debug = false;
-            //         return {
-            //             repository: params.repository,
-            //             branch: params.branch,
-            //             deployment: params.deployment,
-            //             platform: 'app-crm',
-            //             destDir: params.destDir,
-            //             ufaConfig: ufaConfig,
-            //             success: function(params) {
-            //                 console.log('_publish-crm', params);
-            //                 upload2Qiniu({
-            //                     platform: 'app-crm',
-            //                     error: function(err, ret) {
-            //                         versionModel.update({
-            //                             repository: params.repository,
-            //                             branch: params.branch, 
-            //                             platform: 'app-crm',
-            //                             deployment: params.deployment,
-            //                             status: 0
-            //                         });
-            //                     }
-            //                 });
-            //             }
-            //         };
-            //     })(params));
-
-            //     deployTool.rebuild((function(params){
-            //         var ufaConfig = repositoryBuildConfig['app-bureau'];
-            //         ufaConfig.debug = false;
-            //         return {
-            //             repository: params.repository,
-            //             branch: params.branch,
-            //             deployment: params.deployment,
-            //             platform: 'app-bureau',
-            //             destDir: params.destDir,
-            //             ufaConfig: ufaConfig,
-            //             success: function(params) {
-            //                 console.log('_publish-bureau', params);
-            //                 upload2Qiniu({
-            //                     platform: 'app-bureau',
-            //                     error: function(err, ret) {
-            //                         versionModel.update({
-            //                             repository: params.repository,
-            //                             branch: params.branch, 
-            //                             platform: 'app-bureau',
-            //                             deployment: params.deployment,
-            //                             status: 0
-            //                         });
-            //                     }
-            //                 });
-            //             }
-            //         };
-            //     })(params));
-
-            //     deployTool.rebuild((function(params){
-            //         var ufaConfig = repositoryBuildConfig['app-platform'];
-            //         ufaConfig.debug = false;
-            //         return {
-            //             repository: params.repository,
-            //             branch: params.branch,
-            //             deployment: params.deployment,
-            //             platform: 'app-platform',
-            //             destDir: params.destDir,
-            //             ufaConfig: ufaConfig,
-            //             success: function(params) {
-            //                 console.log('_publish-platform', params);
-            //                 upload2Qiniu({
-            //                         platform: 'app-platform',
-            //                         error: function(err, ret) {
-            //                             versionModel.update({
-            //                                 repository: params.repository,
-            //                                 branch: params.branch, 
-            //                                 platform: 'app-platform',
-            //                                 deployment: params.deployment,
-            //                                 status: 0
-            //                             });
-            //                         }
-            //                 });
-            //             }
-            //         };
-            //     })(params));
-            // }).then();
             break;
         case 'retrx-mgt':
         default:
             deploy.then((params) => {
                 return _deployWorkFlow(params);
+            }).then((params) => {
+                versionModel.updateStatusById({id: params.id, status: 3});
             });
             break;
     }
@@ -192,8 +120,6 @@ function _deployWorkFlow(params) {
                             upload2Qiniu({
                                 platform: params.platform
                             });
-
-                            versionModel.updateStatusById({id: params.id, status: 3});
 
                             solve(params);
                         });
@@ -329,21 +255,14 @@ function renderDeployments(req, res, next) {
 function detail(req, res, next) {
     var id = req.params.id;
 
-    new Promise(function(resolve, reject){
-        versionModel.getDeploymentById(id, function(err, rows, fields) {
-            resolve(rows);
-        });
-
-    }).then(function(rows) {
-        console.log(rows.length)
-        if (rows.length > 0) {
-            res.send(rows[0]);    
+    versionModel.getDeploymentById(id).then((data) => {
+        if (data.length > 0) {
+            res.send(data[0]);
             return;
         }
         res.status(404).send({});
         
     });
-    
 }
 
 function getManifestById(req, res, next) {
