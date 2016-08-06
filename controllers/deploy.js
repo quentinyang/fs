@@ -74,6 +74,10 @@ function publish(req, res, next) {
         case 'app-crm':
         case 'app-bureau':
         case 'app-platform':
+
+            deploy.then((params) => {
+                return _deployWorkFlow(params);
+            });
             
             // deploy = _publish('app-site', branch, function(params) {
                 
@@ -167,26 +171,13 @@ function publish(req, res, next) {
             deploy.then((params) => {
                 return _deployWorkFlow(params);
             });
-            deploy.then((params) => {
-                    console.log('EEEEEEEEEEE', params);
-                    // to pull repository code from git and run `npm install`
-                    // params.id = id;
-                    
-                    // deployTool.create(params).then((params) => {
-                    //     // build this repository
-                    //     // TODO
-                    //     deployTool.rebuild
-                    // });
-            });
-
-            // deploy = _publish(platform, branch);
             break;
     }
 
 }
 
 function _deployWorkFlow(params) {
-    console.log('Deploy work flow: ', params)
+    console.log('Deploy work flow: ', params);
 
     return deployTool.create(params).then((params) => {
 
@@ -194,26 +185,20 @@ function _deployWorkFlow(params) {
                 var ufaConfig = repositoryBuildConfig[params.platform];
                 ufaConfig.debug = false;
                 params.ufaConfig = ufaConfig;
-                Promise.resolve(params);
-                // return deployTool.rebuild(params).then((params) => {
-                //         console.log('Upload to QiNiu: ', params);
-                //         return new Promise((solve, reject) => {
-                //             upload2Qiniu({
-                //                 platform: params.platform,
-                //                 error: function(err, ret) {
-                //                     versionModel.update({
-                //                         repository: params.repository,
-                //                         branch: params.branch, 
-                //                         platform: params.platform,
-                //                         deployment: params.deployment,
-                //                         status: 0
-                //                     });
-                //                 }
-                //             });
-                //             solve(params);
-                //         });
 
-                // });
+                return deployTool.rebuild(params).then((params) => {
+                        console.log('Upload to QiNiu: ', params);
+                        return new Promise((solve, reject) => {
+                            upload2Qiniu({
+                                platform: params.platform
+                            });
+
+                            versionModel.updateStatusById({id: params.id, status: 3});
+
+                            solve(params);
+                        });
+
+                });
 
     });
 }

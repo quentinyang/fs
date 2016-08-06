@@ -110,8 +110,6 @@ function updateRepository(repository, branch, deployment, destDir) {
  *          - dest string required
  *          - rule string required
  *          - middlePath string optional
- *      - success optional
- *      - error optional
  */
 function rebuidRepository(params) {
     var deployId = params.id;
@@ -167,9 +165,8 @@ module.exports = {
 if (process.argv.length > 2) {
     // run command
     store({
-        patform: process.argv[2],
+        platform: process.argv[2],
         deployment: process.argv[3],
-        platform: process.argv[4],
         author: ''
     });
 }
