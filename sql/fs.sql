@@ -32,7 +32,7 @@ CREATE TABLE `fs_version` (
   `author` int(11) NOT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '0',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0:init,1:created,2:rebuilt,3uploaded',
   `desc` varchar(100) NOT NULL DEFAULT '{}',
   PRIMARY KEY (`id`),
   KEY `idx_fs_version_deployment_platform_branch` (`deployment`,`platform`,`branch`)
@@ -57,5 +57,19 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+
+DROP TABLE IF EXISTS `fs_manifest`;
+CREATE TABLE `fs`.`fs_manifest` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `version_id` INT NOT NULL,
+  `manifest` LONGTEXT NOT NULL,
+  `created` DATETIME NOT NULL,
+  `updated` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `index_1` (`version_id` ASC)
+) DEFAULT CHARSET=utf8;
+
+
 
 -- Dump completed on 2016-06-24 15:15:50

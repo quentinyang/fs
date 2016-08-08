@@ -1,12 +1,13 @@
+var fs = require('fs');
+var Promise = require('bluebird');
+var deploy =  Promise.promisifyAll(require('../bin/deploy'))
+
 var deployTool = require('../bin/deploy');
 var destDir = 'deployments/';
 var repositoryBuildConfig = require('../config/gitrepository');
-var fs = require('fs');
 
 var versionModel = require('../models/version');
 var qiniuUpload = require('../utils/qiniu_upload2cdn');
-
-var versionModel = require('../models/version');
 
 // 首页
 function index(req, res, next) {
@@ -50,152 +51,82 @@ function publish(req, res, next) {
     var platform = params.platform;
     var branch = params.branch || 'master';
 
+    // 先拿到deploy id返回
+    // create database data for deploy id
+    var deploy = deployTool.createDeployLog({
+            repository: _getRepositoryByPlatform(platform),
+            branch: branch,
+            deployment: 'production',
+            platform: platform,
+            destDir: destDir
+    }).then((params) => {
+            // send response to client immediately with deploy id.
+            res.send(params);
+            // 返回参数，以便后续使用
+            return Promise.resolve(params);
+    });
+
     switch(platform) {
         case 'angejia':
         case 'app-site':
         case 'app-crm':
         case 'app-bureau':
         case 'app-platform':
-            _publish('app-site', branch, function(params) {
-                
-                deployTool.rebuild((function(params){
-                    var ufaConfig = repositoryBuildConfig['app-crm'];
-                    ufaConfig.debug = false;
-                    return {
-                        repository: params.repository,
-                        branch: params.branch,
-                        deployment: params.deployment,
-                        platform: 'app-crm',
-                        destDir: params.destDir,
-                        ufaConfig: ufaConfig,
-                        success: function(params) {
-                            console.log('_publish-crm', params);
-                            upload2Qiniu({
-                                platform: 'app-crm',
-                                error: function(err, ret) {
-                                    versionModel.update({
-                                        repository: params.repository,
-                                        branch: params.branch, 
-                                        platform: 'app-crm',
-                                        deployment: params.deployment,
-                                        status: 0
-                                    });
-                                }
-                            });
-                        }
-                    };
-                })(params));
-
-                deployTool.rebuild((function(params){
-                    var ufaConfig = repositoryBuildConfig['app-bureau'];
-                    ufaConfig.debug = false;
-                    return {
-                        repository: params.repository,
-                        branch: params.branch,
-                        deployment: params.deployment,
-                        platform: 'app-bureau',
-                        destDir: params.destDir,
-                        ufaConfig: ufaConfig,
-                        success: function(params) {
-                            console.log('_publish-bureau', params);
-                            upload2Qiniu({
-                                platform: 'app-bureau',
-                                error: function(err, ret) {
-                                    versionModel.update({
-                                        repository: params.repository,
-                                        branch: params.branch, 
-                                        platform: 'app-bureau',
-                                        deployment: params.deployment,
-                                        status: 0
-                                    });
-                                }
-                            });
-                        }
-                    };
-                })(params));
-
-                deployTool.rebuild((function(params){
-                    var ufaConfig = repositoryBuildConfig['app-platform'];
-                    ufaConfig.debug = false;
-                    return {
-                        repository: params.repository,
-                        branch: params.branch,
-                        deployment: params.deployment,
-                        platform: 'app-platform',
-                        destDir: params.destDir,
-                        ufaConfig: ufaConfig,
-                        success: function(params) {
-                            console.log('_publish-platform', params);
-                            upload2Qiniu({
-                                    platform: 'app-platform',
-                                    error: function(err, ret) {
-                                        versionModel.update({
-                                            repository: params.repository,
-                                            branch: params.branch, 
-                                            platform: 'app-platform',
-                                            deployment: params.deployment,
-                                            status: 0
-                                        });
-                                    }
-                            });
-                        }
-                    };
-                })(params));
+            deploy.then((params) => {
+                console.log('==========Start: app-site, Last Params: ==========', params)
+                params.platform = 'app-site';
+                return _deployWorkFlow(params);
+            }).then((params) => {
+                console.log('==========Start: app-crm, Last Params: ==========', params)
+                params.platform = 'app-crm';
+                return _deployWorkFlow(params);
+            }).then((params) => {
+                console.log('==========Start: app-bureau, Last Params: ==========', params)
+                params.platform = 'app-bureau';
+                return _deployWorkFlow(params);
+            }).then((params) => {
+                console.log('==========Start: app-platform, Last Params: ==========', params)
+                params.platform = 'app-platform';
+                return _deployWorkFlow(params);
+            }).then((params) => {
+                versionModel.updateStatusById({id: params.id, status: 3});
             });
             break;
         case 'retrx-mgt':
         default:
-            _publish(platform, branch);
+            deploy.then((params) => {
+                return _deployWorkFlow(params);
+            }).then((params) => {
+                versionModel.updateStatusById({id: params.id, status: 3});
+            });
             break;
     }
 
-    res.send(params);
-
 }
 
-function _publish(platform, branch, callback) {
+function _deployWorkFlow(params) {
+    console.log('Deploy work flow: ', params);
 
-        var success = function (params) {
+    return deployTool.create(params).then((params) => {
 
-            deployTool.rebuild((function(params){
+                // build this repository
                 var ufaConfig = repositoryBuildConfig[params.platform];
                 ufaConfig.debug = false;
-                return {
-                    repository: params.repository,
-                    branch: params.branch,
-                    deployment: params.deployment,
-                    platform: params.platform,
-                    destDir: params.destDir,
-                    ufaConfig: ufaConfig,
-                    success: function() {
-                        console.log('_publish', params);
-                        upload2Qiniu({
-                            platform: params.platform,
-                            error: function(err, ret) {
-                                versionModel.update({
-                                    repository: params.repository,
-                                    branch: params.branch, 
-                                    platform: params.platform,
-                                    deployment: params.deployment,
-                                    status: 0
-                                });
-                            }
+                params.ufaConfig = ufaConfig;
+
+                return deployTool.rebuild(params).then((params) => {
+                        console.log('Upload to QiNiu: ', params);
+                        return new Promise((solve, reject) => {
+                            upload2Qiniu({
+                                platform: params.platform
+                            });
+
+                            solve(params);
                         });
-                    }
-                };
-            })(params));
 
-            callback && callback(params);
-        };
+                });
 
-        deployTool.create({
-            repository: _getRepositoryByPlatform(platform),
-            branch: branch,
-            deployment: 'production',
-            platform: platform,
-            destDir: destDir,
-            success: success
-        });    
+    });
 }
 
 function create(req, res, next) {
@@ -318,14 +249,44 @@ function renderDeployments(req, res, next) {
     });
 }
 
+/**
+ * 获取部署详情
+ */
+function detail(req, res, next) {
+    var id = req.params.id;
+
+    versionModel.getDeploymentById(id).then((data) => {
+        if (data.length > 0) {
+            res.send(data[0]);
+            return;
+        }
+        res.status(404).send({});
+        
+    });
+}
+
+function getManifestById(req, res, next) {
+    var id = req.params.id;
+
+    // get detail
+    versionModel.getDeploymentById(id).then(function(data) {
+        console.log(data)
+        var platform = data.platform;
+        var branch = data.branch;
+    });
+
+}
+
 module.exports = {
     index: index,
     deployments: deployments,
     renderDeployments: renderDeployments,
     publish: publish,
+    detail: detail,
     create: create,
     update: update,
     rebuild: rebuild,
     getManifest: getManifest,
+    getManifestById: getManifestById,
     upload2cdn: upload2cdn
 };

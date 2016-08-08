@@ -47,7 +47,6 @@ module.exports = {
         origin: "./",
         dest: "public/dist/",
         rule: "newboss"
-    },
-    
+    }    
 
 }

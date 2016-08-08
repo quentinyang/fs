@@ -65,11 +65,11 @@ function uploadFile(params) {
     qiniu.io.putFile(token, key, localFile, extra, function(err, ret) {
       if(!err) {
         // 上传成功， 处理返回值
-        console.log('Success', err, ret);
+        console.log('Success!', ret);
         params.success && params.success(ret, params);
       } else {
         // 上传失败， 处理返回代码
-        console.log("Error", ret, err, params);
+        console.log("Error!", err, 'Results: ', ret, params);
         params.error && params.error(ret, params);
       }
   });
