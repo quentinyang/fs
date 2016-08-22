@@ -92,6 +92,15 @@ function publish(req, res, next) {
                 versionModel.updateStatusById({id: params.id, status: 3});
             });
             break;
+        case 'fy360-service':
+            deploy.then((params) => {
+                console.log('###Start: app-cms, Last Params: ###', params)
+                params.platform = 'app-cms';
+                return _deployWorkFlow(params);
+            }).then((params) => {
+                versionModel.updateStatusById({id: params.id, status: 3});
+            });
+            break;
         case 'retrx-mgt':
         default:
             deploy.then((params) => {
@@ -130,8 +139,8 @@ function _deployWorkFlow(params) {
 }
 
 function create(req, res, next) {
-    
-    var params = _formatParams(req);    
+
+    var params = _formatParams(req);
 
     if (! params.repository || ! params.branch || ! params.deployment || ! params.platform) {
         res.status(400).send("Parameter Error: " + JSON.stringify(params));
@@ -146,7 +155,7 @@ function create(req, res, next) {
         delete params.success;
         deployTool.rebuild(params);
     };
-    
+
     deployTool.create(params);
 
     res.send(params);
@@ -159,7 +168,7 @@ function update(req, res, next) {
 
 function rebuild(req, res, next) {
 
-    var params = _formatParams(req);    
+    var params = _formatParams(req);
 
     if (! params.repository || ! params.branch || ! params.deployment || ! params.platform) {
         res.status(400).send("Parameter Error: " + JSON.stringify(params));
@@ -212,7 +221,7 @@ function upload2Qiniu(params) {
         if (repositoryBuildConfig[platform].middlePath) {
             combinedPath = repositoryBuildConfig[platform].middlePath + '/' + platform;
         }
-        
+
         uploadDir = repositoryBuildConfig[platform].dest;
 
     }
@@ -261,7 +270,7 @@ function detail(req, res, next) {
             return;
         }
         res.status(404).send({});
-        
+
     });
 }
 
