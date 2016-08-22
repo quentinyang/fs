@@ -1,14 +1,15 @@
 module.exports = {
-    
+
     repository: {
         // mixed repository
         "angejia": "git@git.corp.angejia.com:service/angejia.git",
+        "fy360-service": "git@git.corp.angejia.com:fangyuan360/fy360-service.git",
 
         // platform == repository index
-        "retrx-mgt": "git@git.corp.angejia.com:service/retrx-mgt.git", 
+        "retrx-mgt": "git@git.corp.angejia.com:service/retrx-mgt.git",
         "newboss": "git@git.corp.angejia.com:service/newboss.git",
     },
-    
+
     "app-site": {
         origin: "app-site",
         dest: "public/dist/",
@@ -37,6 +38,14 @@ module.exports = {
         middlePath: "angejia",
     },
 
+    // 生态圈cms
+    "app-cms": {
+        origin: "app-cms",
+        dest: "public/dist/",
+        rule: "app-cms",
+        middlePath: "fy360-service",
+    },
+
     "retrx-mgt": {
         origin: "./",
         dest: "public/dist/",
@@ -47,6 +56,6 @@ module.exports = {
         origin: "./",
         dest: "public/dist/",
         rule: "newboss"
-    }    
+    }
 
 }
