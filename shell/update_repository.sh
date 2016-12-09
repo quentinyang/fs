@@ -16,7 +16,7 @@ branchDirectory="$destDir/$branchName/$deployment/$baseGitName"
 cd $branchDirectory
 
 # To fix issue: "fatal: Unable to create 'PATH/fs/deployments/master/production/angejia/.git/index.lock': File exists."
-git checkout master
+git checkout $branchName
 rm -rf .git/index.lock
 rm -rf .git/index
 git reset HEAD .
